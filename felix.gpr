@@ -9,7 +9,16 @@ project Felix is
    for Library_Kind use Library_Type;
 
    for Languages use ("Ada", "C");
-   for Source_Dirs use ("src");
+   type System_API_T is ("POSIX", "WIN32");
+   System_API : System_API_T := external ("SYSTEM_API");
+   Base_Directory := "src";
+   System_Directory := Base_Directory;
+   case System is
+      when "POSIX" => System_Directory := "posix";
+      when "WIN32" => System_Directory := "win32";
+   end case;
+   for Source_Dirs use (Base_Directory,
+                        Base_Directory & "/" & System_Directory);
    for Object_Dir use "obj";
    for Library_Dir use "lib";
    for Create_Missing_Dirs use "True";

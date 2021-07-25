@@ -177,6 +177,25 @@ package body C_Standard_IO is
       Last  := Index;
    end Read_Integer;
 
+   function File_Mode
+     (File : in File_T) return File_Mode_T
+   is
+   begin
+      if File.Address = System.Null_Address then
+         raise Usage_Error;
+      end if;
+
+      return File.Mode;
+   end File_Mode;
+
+   function Is_Readable
+     (File : in File_T) return Boolean
+   is
+   begin
+      return File.Address /= System.Null_Address
+        and then (File.Mode = Read or File.Mode = Read_Write);
+   end Is_Readable;
+
    function Is_Writable
      (File : in File_T) return Boolean
    is
@@ -233,6 +252,8 @@ package body C_Standard_IO is
                      Address => Result);
    end Standard_Error;
 
+   function Null_Output return File_T is separate;
+
    function C_File_Mode_String
      (File_Mode : in File_Mode_T) return System.Address
    is
@@ -256,23 +277,28 @@ package body C_Standard_IO is
                       mode     : in System.Address) return System.Address;
       pragma Import (C, fopen);
 
-      C_File_Name : constant String (1 .. File_Name'Length + 1) :=
-        File_Name & ASCII.NUL;
-
-      Result : System.Address := System.Null_Address;
    begin  --  Open_File
-      if File.Address /= System.Null_Address then
+      if File.Address /= System.Null_Address
+        or else File_Name'Length < 1
+      then
          raise Usage_Error;
       end if;
 
-      Result := fopen (filename => C_File_Name (C_File_Name'First)'Address,
-                       mode     => C_File_Mode_String (File_Mode));
-      if Result = System.Null_Address then
-         raise POSIX_Error;
-      end if;
+      declare
+         C_File_Name : aliased constant String (1 .. File_Name'Length + 1) :=
+           File_Name & ASCII.NUL;
 
-      File.Mode    := File_Mode;
-      File.Address := Result;
+         Result : System.Address := System.Null_Address;
+      begin
+         Result := fopen
+           (filename => C_File_Name (C_File_Name'First)'Address,
+            mode     => C_File_Mode_String (File_Mode));
+         if Result = System.Null_Address then
+            raise POSIX_Error;
+         end if;
+
+         File := File_T'(Address => Result, Mode => File_Mode);
+      end;
    end Open_File;
 
    procedure Close_File
@@ -514,12 +540,13 @@ package body C_Standard_IO is
    end "&";
 
    function "&" (Left  : in Text_T;
-                 Right : in Long_Float) return Text_T
+                 Right : in Long_Long_Float) return Text_T
    is
-      Octets : constant Long_Float_Octets_T := Long_Float_To_Octets (Right);
+      Octets : constant Long_Long_Float_Octets_T :=
+        Long_Long_Float_To_Octets (Right);
    begin
       return Left & Element_T'(Argument_Last => Octets'Last,
-                               Kind          => Float_Long,
+                               Kind          => Float_Long_Long,
                                Argument      => Octet_Array_T (Octets));
    end "&";
 
@@ -614,15 +641,14 @@ package body C_Standard_IO is
          Arguments     => Left.Arguments & Right.Argument);
    end "&";
 
-   function Float_LL (Value : in Long_Long_Float) return Element_T
+   function Float_L (Value : in Long_Float) return Element_T
    is
-      Octets : constant Long_Long_Float_Octets_T :=
-        Long_Long_Float_To_Octets (Value);
+      Octets : constant Long_Float_Octets_T := Long_Float_To_Octets (Value);
    begin
       return Element_T'(Argument_Last => Octets'Last,
-                        Kind          => Float_Long_Long,
+                        Kind          => Float_Long,
                         Argument      => Octet_Array_T (Octets));
-   end Float_LL;
+   end Float_L;
 
    function Integer_L (Value : in Long_Integer) return Element_T
    is
@@ -974,7 +1000,7 @@ package body C_Standard_IO is
       end Verify_Type;
 
    begin  --  String_Of
-      Open_File (Null_File, "/dev/null", Write);
+      Null_File := Null_Output;
 
       while Format_Index <= With_Format'Last loop
          if With_Format (Format_Index) = '%' then

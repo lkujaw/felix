@@ -37,15 +37,17 @@ package C_Standard_IO is
    Usage_Error : exception;
    Error       : exception;
 
-   type File_Mode_T is (Read, Write, Read_Write);
-
    type File_T is limited private;
 
+   type File_Mode_T is (Read, Write, Read_Write);
+   function File_Mode   (File : in File_T) return File_Mode_T;
+   function Is_Readable (File : in File_T) return Boolean;
    function Is_Writable (File : in File_T) return Boolean;
 
    function Standard_Input  return File_T;
    function Standard_Output return File_T;
    function Standard_Error  return File_T;
+   function Null_Output     return File_T;
 
    procedure Open_File (File      : in out File_T;
                         File_Name : in     String;
@@ -72,6 +74,7 @@ package C_Standard_IO is
 
    --  Modifiers
    function Precision (Number_of_Digits : in Natural) return Modifier_T;
+
    function Positive_Sign return Modifier_T;
    function No_Positive_Sign return Modifier_T;
 
@@ -87,13 +90,16 @@ package C_Standard_IO is
    function "&" (Left  : in Text_T;
                  Right : in Character) return Text_T;
 
-   --  Type Integer matches the C default of promoting to int.
+   --  The parameter type Integer emulates the C default of promoting
+   --  to int.
    function "&" (Left  : in Text_T;
                  Right : in Integer) return Text_T;
 
-   --  Type Long_Float matches the C default of promoting to double.
+   --  The parameter type of Right was chosen to emulate the GNAT
+   --  runtime, which implements Float_IO by converting all generic
+   --  Num types to the type Long_Long_Float.
    function "&" (Left  : in Text_T;
-                 Right : in Long_Float) return Text_T;
+                 Right : in Long_Long_Float) return Text_T;
 
    --  Print a pointer (%p)
    function "&" (Left  : in Text_T;
@@ -107,7 +113,7 @@ package C_Standard_IO is
    --  Print a string without translation (%s)
    function Raw (From_String : in String) return Element_T;
 
-   function Float_LL (Value : in Long_Long_Float) return Element_T;
+   function Float_L (Value : in Long_Float) return Element_T;
    function Integer_L (Value : in Long_Integer) return Element_T;
 
    --  Equivalent of '\n'
@@ -124,7 +130,7 @@ package C_Standard_IO is
    function String_Of (The_Text    : in Text_T;
                        With_Format : in String) return String;
 
-private
+private  --  C_Standard_IO
 
    type File_T is
       record

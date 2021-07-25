@@ -58,12 +58,6 @@ package body Native_Language_System is
                  Right : in System.Address) return Boolean
      renames System."=";
 
-   function catgets (catd   : in System.Address;
-                     set_id : in Integer;
-                     msg_id : in Integer;
-                     s      : in System.Address) return System.Address;
-   pragma Import (C, catgets);
-
    function setlocale (category : in Integer;
                        locale   : in System.Address) return System.Address;
    pragma Import (C, setlocale);
@@ -231,9 +225,15 @@ package body Native_Language_System is
       Message_Number  : in Positive;
       Default_Message : in C_Standard_IO.Text_T) return String
    is
+      function catgets (catd   : in System.Address;
+                        set_id : in Integer;
+                        msg_id : in Integer;
+                        s      : in System.Address) return System.Address;
+      pragma Import (C, catgets);
+
       Format_Address  : System.Address := System.Null_Address;
       Format_Length   : Natural        := 0;
-   begin
+   begin  --  Message
       Verify_Catalog (From_Catalog);
 
       Format_Address := catgets (catd   => From_Catalog.Address,

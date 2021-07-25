@@ -1,6 +1,6 @@
 name = "felix"
 description = "X/Open Native Language System (NLS) for Ada"
-version = "0.1.0"
+version = "0.1.1"
 
 authors = ["Lev Kujawski"]
 maintainers = ["Lev Kujawski <int21h@mailbox.org>"]
@@ -10,6 +10,6 @@ website = "https://github.com/lkujaw/felix"
 tags = ["ada1995", "i18n", "nls",
         "localization", "localisation", "l10n"]
 
-# The underlying interface is dependent upon the Unix C library.
-[available.'case(os)']
-'windows' = false
+[gpr-set-externals.'case(os)']
+'windows' = { SYSTEM_API = "WIN32" }
+'...'     = { SYSTEM_API = "POSIX" }

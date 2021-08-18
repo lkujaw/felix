@@ -1,16 +1,49 @@
+------------------------------------------------------------------------------
+--  Copyright (c) 2021, Lev Kujawski.
+--
+--  Permission is hereby granted, free of charge, to any person obtaining a
+--  copy of this software and associated documentation files (the "Software")
+--  to deal in the Software without restriction, including without limitation
+--  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+--  and sell copies of the Software, and to permit persons to whom the
+--  Software is furnished to do so.
+--
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+--  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+--  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+--  THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+--  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+--  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+--  DEALINGS IN THE SOFTWARE.
+--
+--  SPDX-License-Identifier: MIT-0
+--
+--  File:          example1.adb (Ada Subprogram Body)
+--  Language:      Ada (1995) [1]
+--  Author:        Lev Kujawski
+--  Description:   Executable example of Felix library usage
+--
+--  References:
+--  [1] Information technology - Programming languages - Ada,
+--      ISO/IEC 8652:1995(E), 15 Feb. 1995.
+------------------------------------------------------------------------------
+--
+--  To run this program within the examples directory on a UNIX system,
+--    execute: NLSPATH=./%N ./example1
+
 with Ada.Numerics;
-
 with C_Standard_IO;
-use C_Standard_IO;
-
 with Native_Language_System;
+
+with Standard_Text;
+use Standard_Text;
 
 procedure Example1 is
 
    package CIO renames C_Standard_IO;
    package NLS renames Native_Language_System;
 
-   type Messages is
+   type Messages_T is
      (Hello, String_Length, Untranslated);
 
    Pi  : aliased constant Long_Float := 3.141593;
@@ -20,12 +53,12 @@ procedure Example1 is
    Catalog         : NLS.Catalog_T;
    Previous_Locale : NLS.Locale_T;
 
-   procedure Put (Message : in Messages;
-                  Text    : in Text_T)
+   procedure Put (The_Message : in Messages_T;
+                  The_Text    : in Text_T)
    is
    begin
-      CIO.Put (CIO.Standard_Output,
-               NLS.Message (Catalog, 1, Messages'Pos (Message) + 1, Text));
+      CIO.Put (Item => Message (Catalog, 1, Messages_T'Pos (The_Message) + 1,
+                                The_Text));
    end Put;
 
 begin  --  Example1
@@ -42,16 +75,16 @@ begin  --  Example1
 
    Put (Hello, Text & "Hello, world! π = " & Ada.Numerics.Pi & New_Line);
 
-   --  Out-of-order arguments example adapted from the Gettext manual
+   --  Out-of-order arguments example adapted from the Gettext manual.
    Put (String_Length, Text &
           "The string " & Raw (Mir) & " has " & Mir'Length & " bytes." &
-          New_Line);
+            New_Line);
 
    Put (Untranslated, Text &
-        "Address of π: " & Pi'Address & New_Line);
+          "Address of π: " & Pi'Address & New_Line);
 
    Put (Untranslated, Text &
-        Raw ("Здравствуй, мир!") & New_Line);
+          Raw ("Здравствуй, мир!") & New_Line);
 
    Put (Untranslated, Text & Thousands_Grouping &
           (-2145729980.0) & New_Line);

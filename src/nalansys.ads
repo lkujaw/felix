@@ -19,17 +19,15 @@
 --  SPDX-License-Identifier: MIT-0
 --
 --  File:          nalansys.ads (Ada Package Specification)
---  Language:      Ada (1995) [1]
+--  Language:      Ada (1987) [1]
 --  Author:        Lev Kujawski
 --  Description:   X/Open Native Language System [2] interface for Ada
 --
 --  References:
---  [1] Information technology - Programming languages - Ada,
---      ISO/IEC 8652:1995(E), 15 Feb. 1995.
+--  [1] Programming languages - Ada, ISO/IEC 8652:1987, 15 Jun. 1987.
 --  [2] X/Open, Internationalisation Guide Version 2, G304, Jul. 1993.
 ------------------------------------------------------------------------------
 
-with C_Standard_IO;
 with System;
 
 package Native_Language_System is
@@ -68,26 +66,21 @@ package Native_Language_System is
    --  Equivalent of catclose()
    procedure Close_Catalog (Catalog : in out Catalog_T);
 
-   --  OUTPUT SUBPROGRAMS
-   --  These subprograms use the C library's printf family of functions
-   --  to guarantee that output will match that of standard C programs.
-
    --  Equivalent of catgets()
    function Message
-     (From_Catalog    : in Catalog_T;
-      Set_Number      : in Positive;
-      Message_Number  : in Positive;
-      Default_Message : in C_Standard_IO.Text_T) return String;
+     (From_Catalog   : in Catalog_T;
+      Set_Number     : in Positive;
+      Message_Number : in Positive) return String;
 
 private
 
-   type Catalog_T is limited
+   type Catalog_T is
       record
          Address : System.Address := System.Null_Address;
       end record;
    pragma Pack (Catalog_T);
 
-   type Locale_T is limited
+   type Locale_T is
       record
          Address : System.Address := System.Null_Address;
       end record;

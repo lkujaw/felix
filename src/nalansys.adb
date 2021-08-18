@@ -19,13 +19,12 @@
 --  SPDX-License-Identifier: MIT-0
 --
 --  File:          nalansys.adb (Ada Package Body)
---  Language:      Ada (1995) [1]
+--  Language:      Ada (1987) [1]
 --  Author:        Lev Kujawski
 --  Description:   X/Open Native Language System [2] interface for Ada
 --
 --  References:
---  [1] Information technology - Programming languages - Ada,
---      ISO/IEC 8652:1995(E), 15 Feb. 1995.
+--  [1] Programming languages - Ada, ISO/IEC 8652:1987, 15 Jun. 1987.
 --  [2] X/Open, Internationalisation Guide Version 2, G304, Jul. 1993.
 ------------------------------------------------------------------------------
 
@@ -34,25 +33,25 @@ package body Native_Language_System is
    type Octet_T is range 0 .. 255;
    for Octet_T'Size use 8;
 
-   lc_all_c      : constant Integer;
-   pragma Import (C, lc_all_c);
-   lc_collate_c  : constant Integer;
-   pragma Import (C, lc_collate_c);
-   lc_ctype_c    : constant Integer;
-   pragma Import (C, lc_ctype_c);
-   lc_messages_c : constant Integer;
-   pragma Import (C, lc_messages_c);
-   lc_monetary_c : constant Integer;
-   pragma Import (C, lc_monetary_c);
-   lc_numeric_c  : constant Integer;
-   pragma Import (C, lc_numeric_c);
-   lc_time_c     : constant Integer;
-   pragma Import (C, lc_time_c);
+   lc_all_c      : Integer;
+   pragma Interface (C, lc_all_c);
+   lc_collate_c  : Integer;
+   pragma Interface (C, lc_collate_c);
+   lc_ctype_c    : Integer;
+   pragma Interface (C, lc_ctype_c);
+   lc_messages_c : Integer;
+   pragma Interface (C, lc_messages_c);
+   lc_monetary_c : Integer;
+   pragma Interface (C, lc_monetary_c);
+   lc_numeric_c  : Integer;
+   pragma Interface (C, lc_numeric_c);
+   lc_time_c     : Integer;
+   pragma Interface (C, lc_time_c);
 
-   nl_cat_locale_c : constant Integer;
-   pragma Import (C, nl_cat_locale_c);
+   nl_cat_locale_c : Integer;
+   pragma Interface (C, nl_cat_locale_c);
 
-   Null_C_String_C : aliased constant String := (1 => ASCII.NUL);
+   Null_C_String_C : constant String := (1 => ASCII.NUL);
 
    function "=" (Left  : in System.Address;
                  Right : in System.Address) return Boolean
@@ -60,7 +59,7 @@ package body Native_Language_System is
 
    function setlocale (category : in Integer;
                        locale   : in System.Address) return System.Address;
-   pragma Import (C, setlocale);
+   pragma Interface (C, setlocale);
 
    function Category_Value
      (Category : in Category_T) return Integer
@@ -184,7 +183,7 @@ package body Native_Language_System is
    is
       function catopen (name  : in System.Address;
                         oflag : in Integer) return System.Address;
-      pragma Import (C, catopen);
+      pragma Interface (C, catopen);
 
       C_Name : constant String := With_Name & ASCII.NUL;
       Result : System.Address;
@@ -205,7 +204,7 @@ package body Native_Language_System is
    procedure Close_Catalog (Catalog : in out Catalog_T)
    is
       function catclose (catd : in System.Address) return Integer;
-      pragma Import (C, catclose);
+      pragma Interface (C, catclose);
 
       Result : Integer;
    begin  --  Close_Catalog
@@ -220,16 +219,15 @@ package body Native_Language_System is
    end Close_Catalog;
 
    function Message
-     (From_Catalog    : in Catalog_T;
-      Set_Number      : in Positive;
-      Message_Number  : in Positive;
-      Default_Message : in C_Standard_IO.Text_T) return String
+     (From_Catalog   : in Catalog_T;
+      Set_Number     : in Positive;
+      Message_Number : in Positive) return String
    is
       function catgets (catd   : in System.Address;
                         set_id : in Integer;
                         msg_id : in Integer;
                         s      : in System.Address) return System.Address;
-      pragma Import (C, catgets);
+      pragma Interface (C, catgets);
 
       Format_Address  : System.Address := System.Null_Address;
       Format_Length   : Natural        := 0;
@@ -245,7 +243,7 @@ package body Native_Language_System is
       end if;
 
       if Format_Address = Null_C_String_C'Address then
-         return C_Standard_IO.String_Of (The_Text => Default_Message);
+         return "";
       else
          Format_Length := C_String_Length (Format_Address);
 
@@ -253,9 +251,7 @@ package body Native_Language_System is
             Localized_Format : String (1 .. Format_Length);
             for Localized_Format'Address use Format_Address;
          begin
-            return C_Standard_IO.String_Of
-              (The_Text    => Default_Message,
-               With_Format => Localized_Format);
+            return Localized_Format;
          end;
       end if;
    end Message;

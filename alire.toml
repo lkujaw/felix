@@ -1,6 +1,6 @@
 name = "felix"
 description = "X/Open Native Language System (NLS) for Ada"
-version = "0.1.1"
+version = "0.2.0"
 
 authors = ["Lev Kujawski"]
 maintainers = ["Lev Kujawski <int21h@mailbox.org>"]
@@ -9,6 +9,9 @@ licenses = "MIT-0"
 website = "https://github.com/lkujaw/felix"
 tags = ["ada1995", "i18n", "nls",
         "localization", "localisation", "l10n"]
+
+[[depends-on]]
+catgets = "^1"
 
 [gpr-set-externals.'case(os)']
 'windows' = { SYSTEM_API = "WIN32" }

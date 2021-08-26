@@ -22,6 +22,8 @@
 ROOT = ..
 include $(ROOT)/felix.mk
 
+:INSTALLDIR: example1 hello.cat
+
 all : example1 hello.cat
 	NLSPATH=./%N ./example1
 

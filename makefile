@@ -24,6 +24,8 @@ include pkg-ada.mk
 ROOT = .
 include $(ROOT)/felix.mk
 
+:ALL:
+
 nlsa $(VERSION) :ADA_LIBRARY: cio.c nls.c cstandio.adb nalansys.adb stantext.adb
 
 :MAKE:

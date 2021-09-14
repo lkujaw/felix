@@ -44,6 +44,17 @@ project Felix is
    for Library_Dir use "lib";
    for Create_Missing_Dirs use "True";
 
+   package Naming is
+     for Casing                           use "lowercase";
+     for Spec ("C_Standard_IO")           use "cstandio.ads";
+     for Body ("C_Standard_IO")           use "cstandio.adb";
+     for Body ("C_Standard_IO.Open_Null") use "csioopnu.adb";
+     for Spec ("Native_Language_System")  use "nalansys.ads";
+     for Body ("Native_Language_System")  use "nalansys.adb";
+     for Spec ("Standard_Text")           use "stantext.ads";
+     for Body ("Standard_Text")           use "stantext.adb";
+   end Naming;
+
    type Enabled_Kind is ("enabled", "disabled");
    Compile_Checks : Enabled_Kind :=
       External ("FELIX_COMPILE_CHECKS", "disabled");
@@ -56,9 +67,6 @@ project Felix is
 
    type Build_Kind is ("debug", "optimize");
    Build_Mode : Build_Kind := External ("FELIX_BUILD_MODE", "optimize");
-
-   --  Enable GNAT support for the 8.3 file name convention.
-   Default_Compiler_Switches := ("-gnatk8");
 
    Compile_Checks_Switches := ();
    case Compile_Checks is
@@ -106,7 +114,6 @@ project Felix is
 
    package Compiler is
       for Default_Switches ("Ada") use
-        Default_Compiler_Switches &
         Compile_Checks_Switches &
         Build_Switches &
         Runtime_Checks_Switches &
